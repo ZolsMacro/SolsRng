@@ -44,7 +44,7 @@
     "Atomic_Ribonucleic": {"rarity": 9876, "exclusive_biome": ["None", 1]}
   },
   "UniqueAuras": {
-    "★": {"rarity": 100, "exclusive_biome": ["DREAMSPACE", 1]},
+    "\u2605": {"rarity": 100, "exclusive_biome": ["DREAMSPACE", 1]},
     "Undead": {"rarity": 12000, "exclusive_biome": ["HELL", 6]},
     "Corrosive": {"rarity": 12000, "exclusive_biome": ["CORRUPTION", 5]},
     "Kawaii": {"rarity": 12300, "exclusive_biome": ["None", 1]},
@@ -67,7 +67,7 @@
     "Stormal": {"rarity": 90000, "exclusive_biome": ["WINDY", 3]}
   },
   "LegendaryAuras": {
-    "★★": {"rarity": 1000, "exclusive_biome": ["DREAMSPACE", 1]},
+    "\u2605\u2605": {"rarity": 1000, "exclusive_biome": ["DREAMSPACE", 1]},
     "Fault": {"rarity": 3000, "exclusive_biome": ["GLITCHED", 1]},
     "Exotic": {"rarity": 99999, "exclusive_biome": ["None", 1]},
     "Diaboli_Void": {"rarity": 100400, "exclusive_biome": ["None", 1]},
@@ -89,7 +89,7 @@
     "Kyawthuite": {"rarity": 850000, "exclusive_biome": ["None", 1]}
   },
   "MythicAuras": {
-    "★★★": {"rarity": 10000, "exclusive_biome": ["DREAMSPACE", 1]},
+    "\u2605\u2605\u2605": {"rarity": 10000, "exclusive_biome": ["DREAMSPACE", 1]},
     "Arcane": {"rarity": 1000000, "exclusive_biome": ["None", 1]},
     ":Flushed:_Troll": {"rarity": 1000000, "exclusive_biome": ["None", 1]},
     "Starlight_Kunzite": {"rarity": 1000000, "exclusive_biome": ["STARFALL", 5]},
@@ -243,17 +243,19 @@
     "Sovereign_Frostveil": {"rarity": 1000000000, "exclusive_biome": ["AURORA", 2]},
     "LAMENTHYR": {"rarity": 1000000000, "exclusive_biome": ["None", 1]}
   },
+  
   "TranscendentAuras": {
     "NYCTOPHOBIA": {"rarity": 1011111010, "exclusive_biome": ["None", 1], "color": 986895},
-    "Pixelation": {"rarity": 1073741824, "exclusive_biome": ["CYBERSPACE", 2], "color" "RGB"},
-    "Luminosity": {"rarity": 1200000000, "exclusive_biome": ["None", 1], "color" 14745599},
-    "Winter_Garden": {"rarity": 1450012025, "exclusive_biome": ["AURORA", 2], "color" 15782143},
-    "LEVIATHAN": {"rarity": 1730400000, "exclusive_biome": ["RAINY", 1], "color" 1719629},
-    "BREAKTHROUGH": {"rarity": 1999999999, "exclusive_biome": ["None", 1], "color" 14086143},
-    "Dream_Traveler": {"rarity": 2025812825, "exclusive_biome": ["AURORA", 2], "color" 8388736},
-    "EQUINOX": {"rarity": 2500000000, "exclusive_biome": ["None", 1], "color" 3092790},
-    "MONARCH": {"rarity": 3000000000, "exclusive_biome": ["CORRUPTION", 1], "color" 3014735}
+    "Pixelation": {"rarity": 1073741824, "exclusive_biome": ["CYBERSPACE", 2], "color": "RGB"},
+    "Luminosity": {"rarity": 1200000000, "exclusive_biome": ["None", 1], "color": 14745599},
+    "Winter_Garden": {"rarity": 1450012025, "exclusive_biome": ["AURORA", 2], "color": 15782143},
+    "LEVIATHAN": {"rarity": 1730400000, "exclusive_biome": ["RAINY", 1], "color": 1719629},
+    "BREAKTHROUGH": {"rarity": 1999999999, "exclusive_biome": ["None", 1], "color": 14086143},
+    "Dream_Traveler": {"rarity": 2025812825, "exclusive_biome": ["AURORA", 2], "color": 8388736},
+    "EQUINOX": {"rarity": 2500000000, "exclusive_biome": ["None", 1], "color": 3092790},
+    "MONARCH": {"rarity": 3000000000, "exclusive_biome": ["CORRUPTION", 1], "color": 3014735}
   },
+  
   "SpecialAuras": {
     "Burger": {"rarity": 676767, "exclusive_biome": ["None", 1]},
     "StarRider_yourdidit": {"rarity": 1234567, "exclusive_biome": ["STARFALL", 5]},
