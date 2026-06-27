@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Zol Macro Panel</title>
+<style>
+body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: white;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.topbar {
+    height: 50px;
+    background: #020617;
+    border-bottom: 2px solid #1e293b;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    box-sizing: border-box;
+}
+
+.macro-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.btn {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    color: white;
+    font-size: 13px;
+    transition: background 0.2s ease;
+}
+
+.btn-start { background: #16a34a; }
+.btn-start:hover { background: #15803d; }
+
+.btn-stop { background: #dc2626; }
+.btn-stop:hover { background: #b91c1c; }
+
+.status-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: bold;
+    background: #334155;
+    color: #cbd5e1;
+    transition: background 0.2s, color 0.2s;
+}
+
+.main-layout {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
+.sidebar {
+    width: 220px;
+    background: #020617;
+    padding: 15px;
+    box-sizing: border-box;
+    border-right: 1px solid #1e293b;
+}
+
+.tab {
+    padding: 12px;
+    background: #1e293b;
+    border-radius: 10px;
+    cursor: pointer;
+    margin-bottom: 10px;
+    text-align: center;
+    font-weight: 500;
+    transition: background 0.15s ease;
+}
+
+.tab:hover {
+    background: #334155;
+}
+
+.content {
+    flex: 1;
+    padding: 20px;
+    overflow: auto;
+    box-sizing: border-box;
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+    <div style="font-weight: bold; font-size: 16px; letter-spacing: 0.5px;">Zol Macro Panel</div>
+    <div class="macro-controls">
+        <button class="btn btn-start" onclick="startMacro()">Start (F1)</button>
+        <button class="btn btn-stop" onclick="stopMacro()">Stop (F2)</button>
+        <span class="status-badge" id="macroStatus">Status: Stopped</span>
+    </div>
+</div>
+
+<div class="main-layout">
+    <div class="sidebar">
+        <div class="tab" onclick="loadPage('Gui/notice.html')">Notice</div>
+        <div class="tab" onclick="loadPage('Gui/calibrations.html')">Calibrations</div>
+        <div class="tab" onclick="loadPage('Gui/merchant.html')">Merchant</div>
+        <div class="tab" onclick="loadPage('Gui/fishing.html')">Fishing</div>
+        <div class="tab" onclick="loadPage('Gui/idledetection.html')">Idle Detection</div>
+        <div class="tab" onclick="loadPage('Gui/settings.html')">Settings</div>
+    </div>
+
+    <div class="content" id="app">Loading Dashboard...</div>
+</div>
+
+<script>
+let isMacroRunning = false;
+let startClickCount = 0;
+let stopClickCount = 0;
+
+window.updateMasterStatus = function(active) {
+    isMacroRunning = active;
+    startClickCount = 0;
+    stopClickCount = 0;
+
+    const status = document.getElementById("macroStatus");
+    if (!status) return;
+
+    if (active) {
+        status.textContent = "Status: Running";
+        status.style.background = "#15803d";
+        status.style.color = "#bbf7d0";
+    } else {
+        status.textContent = "Status: Stopped";
+        status.style.background = "#334155";
+        status.style.color = "#cbd5e1";
+    }
+};
+
+function startMacro() {
+    if (isMacroRunning) {
+        startClickCount++;
+        if (startClickCount >= 2) {
+            window.updateMasterStatus(false);
+        }
+        return;
+    }
+    
+    window.updateMasterStatus(true);
+
+    if (window.pywebview && window.pywebview.api && typeof window.pywebview.api.start_macro === 'function') {
+        window.pywebview.api.start_macro();
+    }
+}
+
+function stopMacro() {
+    if (!isMacroRunning) {
+        stopClickCount++;
+        if (stopClickCount >= 2) {
+            window.updateMasterStatus(false);
+        }
+        return;
+    }
+    
+    window.updateMasterStatus(false);
+
+    if (window.pywebview && window.pywebview.api && typeof window.pywebview.api.stop_macro === 'function') {
+        window.pywebview.api.stop_macro();
+    }
+}
+
+async function loadPage(page) {
+    try {
+        const res = await fetch(page + "?t=" + Date.now());
+        if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+        
+        const html = await res.text();
+        const container = document.getElementById("app");
+        if (!container) return;
+        
+        container.innerHTML = html;
+
+        const scripts = container.querySelectorAll("script");
+        scripts.forEach(oldScript => {
+            try {
+                const newScript = document.createElement("script");
+                if (oldScript.src) {
+                    newScript.src = oldScript.src;
+                } else {
+                    newScript.textContent = `(function(){\n${oldScript.textContent}\n})();`;
+                }
+                document.body.appendChild(newScript);
+                oldScript.remove();
+                setTimeout(() => newScript.remove(), 50);
+            } catch (scriptErr) {
+                console.error(scriptErr);
+            }
+        });
+    } catch (err) {
+        console.error(err);
+        const container = document.getElementById("app");
+        if (container) {
+            container.innerHTML = `<span style="color:#dc2626; font-weight:bold;">Error loading asset layout.</span>`;
+        }
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    loadPage("Gui/notice.html");
+});
+</script>
+
+</body>
+</html>

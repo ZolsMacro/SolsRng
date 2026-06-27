@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: white;
+}
+
+.container {
+    padding: 20px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.card {
+    background: #1e293b;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.card h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.input-field {
+    width: 100%;
+    padding: 10px 12px;
+    background: #334155;
+    border: 1px solid #475569;
+    border-radius: 6px;
+    color: white;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: border-color 0.2s;
+}
+
+.input-field:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>User ID</h2>
+        <input type="text" id="userIdInput" class="input-field" placeholder="Enter Discord User ID" oninput="updateUserId()">
+    </div>
+
+    <div class="card">
+        <h2>Webhook</h2>
+        <input type="text" id="webhookInput" class="input-field" placeholder="Enter Discord Webhook Link" oninput="updateWebhook()">
+    </div>
+
+    <div class="card">
+        <h2>Private Server</h2>
+        <input type="text" id="privateServerInput" class="input-field" placeholder="Enter Roblox Private Server Link" oninput="updatePrivateServer()">
+    </div>
+</div>
+
+<script>
+(function() {
+    async function updateUserId() {
+        const val = document.getElementById("userIdInput").value;
+        if (window.pywebview && window.pywebview.api && typeof window.pywebview.api.set_user_id === 'function') {
+            await window.pywebview.api.set_user_id(val);
+        }
+    }
+
+    async function updateWebhook() {
+        const val = document.getElementById("webhookInput").value;
+        if (window.pywebview && window.pywebview.api && typeof window.pywebview.api.set_webhook === 'function') {
+            await window.pywebview.api.set_webhook(val);
+        }
+    }
+
+    async function updatePrivateServer() {
+        const val = document.getElementById("privateServerInput").value;
+        if (window.pywebview && window.pywebview.api && typeof window.pywebview.api.set_private_server === 'function') {
+            await window.pywebview.api.set_private_server(val);
+        }
+    }
+
+    async function loadSavedConfig() {
+        if (window.pywebview && window.pywebview.api && typeof window.pywebview.api.load_config_file === 'function') {
+            try {
+                const config = await window.pywebview.api.load_config_file();
+                if (config) {
+                    if (config["UserId"]) {
+                        document.getElementById("userIdInput").value = config["UserId"];
+                    }
+                    if (config["WebHooks"] && config["WebHooks"]["webhook_urls"] && config["WebHooks"]["webhook_urls"].length > 0) {
+                        document.getElementById("webhookInput").value = config["WebHooks"]["webhook_urls"][0];
+                    }
+                    if (config["Private Server"]) {
+                        document.getElementById("privateServerInput").value = config["Private Server"];
+                    }
+                }
+            } catch (e) {
+                console.error("Failed to load config values into UI:", e);
+            }
+        }
+    }
+
+    window.updateUserId = updateUserId;
+    window.updateWebhook = updateWebhook;
+    window.updatePrivateServer = updatePrivateServer;
+
+    let attempts = 0;
+    const check = setInterval(() => {
+        attempts++;
+        if ((window.pywebview && window.pywebview.api) || attempts > 20) {
+            clearInterval(check);
+            loadSavedConfig();
+        }
+    }, 50);
+})();
+</script>
+
+</body>
+</html>

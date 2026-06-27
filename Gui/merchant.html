@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: white;
+}
+
+.container {
+    padding: 20px;
+}
+
+.card {
+    background: #1e293b;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+}
+
+.toggle {
+    width: 60px;
+    height: 30px;
+    background: #334155;
+    border-radius: 999px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.toggle.active {
+    background: #22c55e;
+}
+
+.knob {
+    width: 26px;
+    height: 26px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: left 0.2s;
+}
+
+.toggle.active .knob {
+    left: 32px;
+}
+
+.item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px;
+    background: #0f172a;
+    margin-top: 6px;
+    border-radius: 8px;
+    align-items: center;
+}
+
+.role-settings-box {
+    margin-top: 10px;
+    padding: 10px;
+    background: #0f172a;
+    border-radius: 8px;
+    transition: opacity 0.2s ease;
+}
+
+.role-settings-box.disabled {
+    opacity: 0.4;
+    pointer-events: none;
+}
+
+.role-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 6px;
+}
+
+.role-row span {
+    font-size: 0.9rem;
+    color: #cbd5e1;
+}
+
+.role-row input[type="text"] {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 6px;
+    color: white;
+    padding: 6px 10px;
+    width: 160px;
+    outline: none;
+}
+
+.role-row input[type="text"]:focus {
+    border-color: #22c55e;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2 style="margin:0 0 10px 0">Merchant Detection</h2>
+        <div id="merchantToggle" class="toggle" onclick="toggleDetect()">
+            <div class="knob"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h3 style="margin:0 0 10px 0">Merchant Pings</h3>
+        <div id="pingContainer">Loading...</div>
+        
+        <div class="item" style="margin-top: 15px; border-top: 1px solid #334155; pt: 10px;">
+            <span>Ping Role</span>
+            <input type="checkbox" id="pingRoleToggle" onchange="toggleRoleSettings(this.checked)">
+        </div>
+
+        <div id="roleSettingsBox" class="role-settings-box disabled">
+            <div class="role-row">
+                <span>Mari Role ID</span>
+                <input type="text" id="mariRoleId" placeholder="123456789012345678" onchange="saveRoleID('MariRoleID', this.value)">
+            </div>
+            <div class="role-row">
+                <span>Jester Role ID</span>
+                <input type="text" id="jesterRoleId" placeholder="123456789012345678" onchange="saveRoleID('JesterRoleID', this.value)">
+            </div>
+            <div class="role-row">
+                <span>Rin Role ID</span>
+                <input type="text" id="rinRoleId" placeholder="123456789012345678" onchange="saveRoleID('RinRoleID', this.value)">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let enabled = false;
+
+    async function toggleDetect() {
+        enabled = !enabled;
+
+        const toggle = document.getElementById("merchantToggle");
+        if (toggle) {
+            toggle.classList.toggle("active", enabled);
+        }
+
+        if (window.pywebview && window.pywebview.api && typeof window.pywebview.api.set_merchant_module_state === 'function') {
+            await window.pywebview.api.set_merchant_module_state(enabled);
+        }
+    }
+
+    async function setPing(key, value) {
+        if (window.pywebview && window.pywebview.api && typeof window.pywebview.api.set_merchant_flag === 'function') {
+            await window.pywebview.api.set_merchant_flag(key, value);
+        }
+    }
+
+    async function toggleRoleSettings(checked) {
+        const container = document.getElementById("roleSettingsBox");
+        if (container) {
+            if (checked) {
+                container.classList.remove("disabled");
+            } else {
+                container.classList.add("disabled");
+            }
+        }
+        await setPing("UseRolePings", checked);
+    }
+
+    async function saveRoleID(key, value) {
+        await setPing(key, value);
+    }
+
+    async function loadMerchantConfig() {
+        if (!window.pywebview || !window.pywebview.api || typeof window.pywebview.api.get_merchant_config !== 'function') {
+            const container = document.getElementById("pingContainer");
+            if (container) container.innerHTML = "NO BACKEND CONNECTION";
+            return;
+        }
+
+        try {
+            const config = await window.pywebview.api.get_merchant_config();
+            const container = document.getElementById("pingContainer");
+            if (!container) return;
+            
+            container.innerHTML = "";
+
+            if (!config || Object.keys(config).length === 0) {
+                container.innerHTML = "NO CONFIG RECEIVED";
+                return;
+            }
+
+            const useRolePings = !!config["UseRolePings"];
+            const roleToggle = document.getElementById("pingRoleToggle");
+            if (roleToggle) roleToggle.checked = useRolePings;
+            toggleRoleSettings(useRolePings);
+
+            const fields = {
+                "MariRoleID": "mariRoleId",
+                "JesterRoleID": "jesterRoleId",
+                "RinRoleID": "rinRoleId"
+            };
+            for (const key in fields) {
+                const el = document.getElementById(fields[key]);
+                if (el) el.value = config[key] || "";
+            }
+
+            let found = false;
+            const fragment = document.createDocumentFragment();
+
+            for (const key in config) {
+                if (!key.includes("Ping")) continue;
+
+                found = true;
+
+                const div = document.createElement("div");
+                div.className = "item";
+
+                const label = document.createElement("span");
+                label.textContent = key.replace("Ping", "");
+
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.checked = !!config[key];
+                checkbox.addEventListener("change", function() {
+                    setPing(key, this.checked);
+                });
+
+                div.appendChild(label);
+                div.appendChild(checkbox);
+                fragment.appendChild(div);
+            }
+
+            if (found) {
+                container.appendChild(fragment);
+            } else {
+                container.innerHTML = "NO PINGS FOUND";
+            }
+        } catch (err) {
+            console.error(err);
+            const container = document.getElementById("pingContainer");
+            if (container) container.innerHTML = "ERROR PARSING CONFIG";
+        }
+    }
+
+    window.toggleDetect = toggleDetect;
+    window.toggleRoleSettings = toggleRoleSettings;
+    window.saveRoleID = saveRoleID;
+
+    let attempts = 0;
+    const check = setInterval(() => {
+        attempts++;
+        if ((window.pywebview && window.pywebview.api) || attempts > 20) {
+            loadMerchantConfig();
+            clearInterval(check);
+        }
+    }, 50);
+})();
+</script>
+
+</body>
+</html>

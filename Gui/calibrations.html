@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: #0f172a;
+    color: white;
+}
+
+.wrap {
+    padding: 20px;
+}
+
+.item {
+    margin-bottom: 14px;
+}
+
+input {
+    padding: 10px;
+    font-size: 14px;
+    width: 220px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+}
+
+button {
+    margin-top: 8px;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #1d4ed8;
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+    <h1>Calibrations</h1>
+    <div id="list"></div>
+</div>
+
+<script>
+window.currentKey = null;
+
+function formatKey(key) {
+    return key
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, c => c.toUpperCase());
+}
+
+function waitForAPI() {
+    return new Promise(resolve => {
+        const check = () => {
+            if (window.pywebview && window.pywebview.api) {
+                resolve();
+            } else {
+                setTimeout(check, 50);
+            }
+        };
+        check();
+    });
+}
+
+async function load() {
+    await waitForAPI();
+
+    const data = await window.pywebview.api.get_calibrations();
+
+    const list = document.getElementById("list");
+    list.innerHTML = "";
+
+    Object.keys(data).forEach(key => {
+        const val = data[key] || {};
+
+        const x = val.x ?? "";
+        const y = val.y ?? "";
+
+        const div = document.createElement("div");
+        div.className = "item";
+
+        div.innerHTML = `
+            <div>${formatKey(key)}</div>
+            <input 
+                id="${key}" 
+                value="${x !== "" && y !== "" ? `${x}, ${y}` : ""}"
+                onblur="saveCalibration('${key}', this.value)"
+            />
+            <button onclick="choose('${key}')">Choose</button>
+        `;
+
+        list.appendChild(div);
+    });
+}
+
+function choose(key) {
+    if (!key || typeof key !== "string") return;
+
+    window.currentKey = key;
+    console.log("Selected key:", key);
+
+    window.pywebview.api.open_overlay();
+}
+
+// SAVE ON TEXT CHANGE (blur)
+async function saveCalibration(key, value) {
+    console.log("SAVE CALL:", key, value);
+
+    if (!key || typeof key !== "string") {
+        console.log("BLOCKED SAVE (bad key):", key);
+        return;
+    }
+
+    const parts = value.split(",").map(v => parseInt(v.trim()));
+
+    if (parts.length !== 2 || parts.some(isNaN)) return;
+
+    await window.pywebview.api.set_calibration(key, {
+        x: parts[0],
+        y: parts[1]
+    });
+}
+
+// called from Python overlay
+window.setCalibrationValue = function(x, y) {
+    const key = window.currentKey;
+
+    if (!key || typeof key !== "string") {
+        console.log("No valid currentKey, skipping save");
+        return;
+    }
+
+    const el = document.getElementById(key);
+    if (!el) return;
+
+    el.value = `${x}, ${y}`;
+
+    saveCalibration(key, el.value);
+};
+
+load();
+</script>
+
+</body>
+</html>

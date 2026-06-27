@@ -1,0 +1,241 @@
+{
+    "UserId": "",
+    "WebHooks": {
+        "webhook_urls": [
+            ""
+        ]
+    },
+    "Calibrations": {
+        "open_inventory": {
+            "x": 35,
+            "y": 516
+        },
+        "inventory_items_tab": {
+            "x": 1272,
+            "y": 337
+        },
+        "inventory_search_bar": {
+            "x": 1095,
+            "y": 368
+        },
+        "first_inventory_slot": {
+            "x": 847,
+            "y": 478
+        },
+        "inventory_use": {
+            "x": 684,
+            "y": 578
+        },
+        "inventory_close": {
+            "x": 1414,
+            "y": 301
+        },
+        "dialogue_skip": {
+            "x": 1001,
+            "y": 824
+        },
+        "open_merchant": {
+            "x": 616,
+            "y": 945
+        },
+        "close_merchant_shop": {
+            "x": 1809,
+            "y": 348
+        },
+        "null": {
+            "x": 1001,
+            "y": 824
+        }
+    },
+    "Merchant": {
+        "MariPing": false,
+        "RinPing": false,
+        "JesterPing": false,
+        "Jester_Items": {
+            "Heavenly Potion": [
+                false,
+                1,
+                false
+            ],
+            "Lucky Potion": [
+                false,
+                1,
+                false
+            ],
+            "Merchant Tracker": [
+                false,
+                1,
+                false
+            ],
+            "Oblivion Potion": [
+                false,
+                1,
+                false
+            ],
+            "Potion of bound": [
+                false,
+                1,
+                false
+            ],
+            "Random Potion Sack": [
+                false,
+                1,
+                false
+            ],
+            "Rune Of Corruption": [
+                false,
+                1,
+                false
+            ],
+            "Rune Of Hell": [
+                false,
+                1,
+                false
+            ],
+            "Rune of Dust": [
+                false,
+                1,
+                false
+            ],
+            "Rune of Everything": [
+                false,
+                1,
+                false
+            ],
+            "Rune of Frost": [
+                false,
+                1,
+                false
+            ],
+            "Rune of Galaxy": [
+                false,
+                1,
+                false
+            ],
+            "Rune of Nothing": [
+                false,
+                1,
+                false
+            ],
+            "Rune of Rainstorm": [
+                false,
+                1,
+                false
+            ],
+            "Rune of Wind": [
+                false,
+                1,
+                false
+            ],
+            "Speed Potion": [
+                false,
+                1,
+                false
+            ],
+            "Stella's Candle": [
+                false,
+                1,
+                false
+            ],
+            "Strange Potion": [
+                false,
+                1,
+                false
+            ]
+        },
+        "Mari_Items": {
+            "Gear A": [
+                false,
+                1,
+                false
+            ],
+            "Gear B": [
+                false,
+                1,
+                false
+            ],
+            "Lucky Penny": [
+                false,
+                1,
+                false
+            ],
+            "Lucky Potion": [
+                false,
+                1,
+                false
+            ],
+            "Lucky Potion L": [
+                false,
+                1,
+                false
+            ],
+            "Lucky Potion XL": [
+                false,
+                1,
+                false
+            ],
+            "Mixed Potion": [
+                false,
+                1,
+                false
+            ],
+            "Speed Potion": [
+                false,
+                1,
+                false
+            ],
+            "Speed Potion L": [
+                false,
+                1,
+                false
+            ],
+            "Speed Potion XL": [
+                false,
+                1,
+                false
+            ],
+            "Void Coin": [
+                false,
+                1,
+                false
+            ]
+        },
+        "Rin_Items": {
+            "Day and Night Talisman": [
+                false,
+                1,
+                false
+            ],
+            "Moonstone Talisman": [
+                false,
+                1,
+                false
+            ],
+            "Overtime Talisman": [
+                false,
+                1,
+                false
+            ],
+            "Soul Collector's Talisman": [
+                false,
+                1,
+                false
+            ],
+            "Soul Master's Talisman": [
+                false,
+                1,
+                false
+            ],
+            "Sunstone Talisman": [
+                false,
+                1,
+                false
+            ]
+        },
+        "UseRolePings": false
+    },
+    "Fishing": {
+        "SellThreshold": 50
+    },
+    "Private Server": ""
+}

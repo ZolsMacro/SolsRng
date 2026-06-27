@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: rgba(0,0,0,0);
+    cursor: crosshair !important;
+}
+
+#circle {
+    position: fixed;
+    width: 40px;   /* 🔥 smaller */
+    height: 40px;  /* 🔥 smaller */
+    border-radius: 50%;
+    pointer-events: none;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    background: radial-gradient(circle at 30% 30%, rgba(120,220,255,0.95), rgba(0,140,255,0.25));
+    box-shadow:
+        0 0 10px rgba(0,180,255,0.6),
+        0 0 20px rgba(0,140,255,0.3);
+
+    transform: translate(-50%, -50%);
+}
+
+#label {
+    position: fixed;
+    pointer-events: none;
+
+    font-family: Arial;
+    font-size: 10px;
+    color: white;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+}
+</style>
+</head>
+
+<body>
+
+<div id="circle"></div>
+<div id="label"></div>
+
+<script>
+const circle = document.getElementById("circle");
+const label = document.getElementById("label");
+
+let lastX = window.innerWidth / 2;
+let lastY = window.innerHeight / 2;
+
+// 🔥 ALWAYS render immediately at center (prevents corner spawn)
+function render(x, y, sx, sy) {
+    circle.style.left = x + "px";
+    circle.style.top = y + "px";
+
+    label.style.left = (x + 10) + "px";
+    label.style.top = (y - 18) + "px";
+
+    label.innerText = `x:${sx} y:${sy}`;
+}
+
+// 🔥 instant initial placement (NO WAIT FOR MOUSEMOVE)
+render(lastX, lastY, 0, 0);
+
+// update on move
+window.addEventListener("mousemove", (e) => {
+    lastX = e.clientX;
+    lastY = e.clientY;
+
+    render(e.clientX, e.clientY, e.screenX, e.screenY);
+});
+
+// click → send calibration
+window.addEventListener("click", async (e) => {
+    await window.pywebview.api.emit_calibration_result({
+        x: e.screenX,
+        y: e.screenY
+    });
+
+    await window.pywebview.api.close_overlay();
+});
+</script>
+
+</body>
+</html>

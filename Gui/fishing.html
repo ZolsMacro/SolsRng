@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+body { margin: 0; font-family: Arial, sans-serif; background: #0f172a; color: white; }
+.container { padding: 20px; }
+.card { background: #1e293b; padding: 20px; border-radius: 12px; margin-bottom: 15px; }
+.toggle-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+.toggle { width: 60px; height: 30px; background: #334155; border-radius: 999px; position: relative; cursor: pointer; transition: background 0.2s; }
+.toggle.active { background: #22c55e; }
+.knob { width: 26px; height: 26px; background: white; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: left 0.2s; }
+.toggle.active .knob { left: 32px; }
+.input-group { display: flex; flex-direction: column; gap: 10px; }
+input[type="number"] { background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: white; padding: 10px; width: 100%; box-sizing: border-box; outline: none; }
+input[type="number"]:focus { border-color: #22c55e; }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <div class="card">
+        <div class="toggle-row">
+            <h2 style="margin:0">Fishing</h2>
+            <div id="fishToggle" class="toggle" onclick="handleToggle()">
+                <div class="knob"></div>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <span style="color: #94a3b8; font-size: 0.9rem;">Amount of Fish before sell</span>
+            <input type="number" id="sellThreshold" onchange="saveThreshold()">
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let fishingEnabled = false;
+
+    async function handleToggle() {
+        fishingEnabled = !fishingEnabled;
+        const toggle = document.getElementById("fishToggle");
+        if (toggle) {
+            toggle.classList.toggle("active", fishingEnabled);
+        }
+        if (window.pywebview && window.pywebview.api && typeof window.pywebview.api.set_fishing_module_state === 'function') {
+            await window.pywebview.api.set_fishing_module_state(fishingEnabled);
+        }
+    }
+
+    async function saveThreshold() {
+        const input = document.getElementById("sellThreshold");
+        if (!input) return;
+        const val = input.value;
+        if (window.pywebview && window.pywebview.api && val !== "" && typeof window.pywebview.api.set_fishing_config === 'function') {
+            await window.pywebview.api.set_fishing_config("SellThreshold", parseInt(val, 10));
+        }
+    }
+
+    async function loadConfig() {
+        if (window.pywebview && window.pywebview.api && typeof window.pywebview.api.get_fishing_config === 'function') {
+            const config = await window.pywebview.api.get_fishing_config();
+            const input = document.getElementById("sellThreshold");
+            if (config && config.SellThreshold !== undefined && input) {
+                input.value = config.SellThreshold;
+            }
+        }
+    }
+
+    window.handleToggle = handleToggle;
+    window.saveThreshold = saveThreshold;
+
+    let attempts = 0;
+    const check = setInterval(() => {
+        attempts++;
+        if ((window.pywebview && window.pywebview.api) || attempts > 20) {
+            loadConfig();
+            clearInterval(check);
+        }
+    }, 100);
+})();
+</script>
+</body>
+</html>

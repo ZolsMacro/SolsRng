@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #0f172a;
+    color: white;
+}
+
+.container {
+    padding: 20px;
+}
+
+.card {
+    background: #1e293b;
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card h2 {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+.toggle {
+    width: 60px;
+    height: 30px;
+    background: #334155;
+    border-radius: 999px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.toggle.active {
+    background: #22c55e;
+}
+
+.knob {
+    width: 26px;
+    height: 26px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    transition: left 0.2s;
+}
+
+.toggle.active .knob {
+    left: 32px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <div class="card">
+        <h2>Biome Detection</h2>
+        <div id="biomeToggle" class="toggle" onclick="toggleBiome()">
+            <div class="knob"></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Aura Detection</h2>
+        <div id="auraToggle" class="toggle" onclick="toggleAura()">
+            <div class="knob"></div>
+        </div>
+    </div>
+</div>
+
+<script>
+(function() {
+    let biomeEnabled = false;
+    let auraEnabled = false;
+
+    async function toggleBiome() {
+        biomeEnabled = !biomeEnabled;
+
+        const toggle = document.getElementById("biomeToggle");
+        if (toggle) {
+            toggle.classList.toggle("active", biomeEnabled);
+        }
+
+        if (window.pywebview && window.pywebview.api && typeof window.pywebview.api.set_biome_module_state === 'function') {
+            await window.pywebview.api.set_biome_module_state(biomeEnabled);
+        }
+    }
+
+    async function toggleAura() {
+        auraEnabled = !auraEnabled;
+
+        const toggle = document.getElementById("auraToggle");
+        if (toggle) {
+            toggle.classList.toggle("active", auraEnabled);
+        }
+
+        if (window.pywebview && window.pywebview.api && typeof window.pywebview.api.set_aura_module_state === 'function') {
+            await window.pywebview.api.set_aura_module_state(auraEnabled);
+        }
+    }
+
+    window.toggleBiome = toggleBiome;
+    window.toggleAura = toggleAura;
+
+    let attempts = 0;
+    const check = setInterval(() => {
+        attempts++;
+        if ((window.pywebview && window.pywebview.api) || attempts > 20) {
+            clearInterval(check);
+        }
+    }, 50);
+})();
+</script>
+
+</body>
+</html>
